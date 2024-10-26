@@ -1,0 +1,36 @@
+version: "3"
+services:
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=eidoox
+      - MONGO_INITDB_ROOT_PASSWORD=eidoox99
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_db_data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis
+
+  nodeapp:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_db_data:
+    driver: local
