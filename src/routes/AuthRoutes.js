@@ -10,6 +10,6 @@ const {
 
 authRouter.post("/register", usersRegisteration);
 authRouter.post("/login", usersLogin);
-router.get("/me", authenticateUser, getCurrentProfile);
+authRouter.get("/me", authenticateUser, getCurrentProfile);
 
 module.exports = authRouter;

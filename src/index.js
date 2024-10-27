@@ -8,6 +8,9 @@ app.use(express.json());
 
 connectToMongoDB()
   .then(() => {
+    app.get("/api/v1/hello", (req, res) => {
+      res.send("hellow world kya a3rfsa");
+    });
     app.use("/api/v1/", indexRouter);
 
     app.listen(5000, () => {

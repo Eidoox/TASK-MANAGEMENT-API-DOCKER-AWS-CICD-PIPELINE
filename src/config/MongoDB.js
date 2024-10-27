@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const DATABASE_URL = "mongodb://eidoox:eidoox99@mongo:27017";
+const DATABASE_URL = "mongodb://eidoox:eidoox99@mongo:27017/tasks_database";
 
 const connectToMongoDB = async () => {
   try {

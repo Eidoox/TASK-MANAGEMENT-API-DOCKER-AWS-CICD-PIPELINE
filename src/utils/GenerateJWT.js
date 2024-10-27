@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-export const generateJWT = (id, role) => {
+const generateJWT = (id, role) => {
   const token = jwt.sign(
     { userId: id, role: role },
     process.env.JWT_SECRET_KEY,
@@ -9,3 +9,5 @@ export const generateJWT = (id, role) => {
 
   return token;
 };
+
+module.exports = { generateJWT };
