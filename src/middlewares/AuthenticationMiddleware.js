@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/UserModel");
 
 const authenticateUser = async (req, res, next) => {
   try {
@@ -14,7 +13,6 @@ const authenticateUser = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    console.log("from authentnicate middleware", decoded);
     req.user = decoded; // Attach decoded user data to request
 
     return next();

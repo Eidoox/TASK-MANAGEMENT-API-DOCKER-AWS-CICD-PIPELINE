@@ -2,6 +2,7 @@
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/UserModel");
 const { generateJWT } = require("../utils/GenerateJWT");
+const { updateUserTask } = require("./TasksControllers");
 
 // Register a new user
 const usersRegisteration = async (req, res) => {
@@ -26,7 +27,7 @@ const usersRegisteration = async (req, res) => {
     });
 
     // Save the user to the database
-    await userModel.save();
+    await user.save();
 
     // Generate a JWT token
     const token = generateJWT(user._id, user.role);
@@ -107,4 +108,9 @@ const getCurrentProfile = async (req, res) => {
   }
 };
 
-module.exports = { usersRegisteration, usersLogin, getCurrentProfile };
+module.exports = {
+  usersRegisteration,
+  usersLogin,
+  getCurrentProfile,
+  updateUserTask,
+};
