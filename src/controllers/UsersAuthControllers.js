@@ -3,12 +3,7 @@ const bcrypt = require("bcryptjs");
 const userModel = require("../models/UserModel");
 const { generateJWT } = require("../utils/GenerateJWT");
 const { updateUserTask } = require("./TasksControllers");
-
-let redisClient;
-
-const setRedisClient = (app) => {
-  redisClient = app.get("redisClient");
-};
+const { redisClient } = require("../config/Redis");
 
 // Register a new user
 const usersRegisteration = async (req, res) => {

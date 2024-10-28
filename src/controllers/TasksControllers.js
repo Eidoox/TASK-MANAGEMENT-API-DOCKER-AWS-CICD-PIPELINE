@@ -1,16 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const taskModel = require("../models/TaskModel");
-
-let redisClient;
-
-const setRedisClient = (app) => {
-  redisClient = app.get("redisClient");
-};
-
 // create task for authenticated user
 const createTask = async (req, res) => {
   try {
     const { description } = req.body;
+    const { redisClient } = req;
 
     const task = new taskModel({
       userId: req.user.userId,
@@ -18,6 +12,10 @@ const createTask = async (req, res) => {
     });
 
     await task.save();
+
+    // Invalidate the cache for the user's tasks to ensure freshness
+    const cacheKey = `userTasks:${req.user.userId}`;
+    await redisClient.del(cacheKey);
 
     res.status(201).json({
       message: "Task createdddd successfully",
@@ -32,11 +30,28 @@ const createTask = async (req, res) => {
 // Get all tasks for the authenticated user
 const getUserTasks = async (req, res) => {
   try {
+    const { redisClient } = req;
+    const cacheKey = `userTasks:${req.user.userId}`;
+
+    // Step 1: Check if the user's tasks are in the cache
+    const cachedTasks = await redisClient.get(cacheKey);
+
+    console.log("sssss", cachedTasks);
+    if (cachedTasks) {
+      // if cache hits
+      return res.status(200).json({
+        message: "User tasks retrieved successfully from cache",
+        tasks: JSON.parse(cachedTasks),
+      });
+    }
+
     const tasks = await taskModel
       .find({ userId: req.user.userId })
       .select("-userId");
 
-    res.status(200).json({
+    await redisClient.set(cacheKey, JSON.stringify(tasks), "EX", 60 * 60); // set expiration to 1 hour
+
+    return res.status(200).json({
       message: "User tasks retrieved successfully",
       tasks,
     });
@@ -50,6 +65,7 @@ const getUserTasks = async (req, res) => {
 const deleteUserTask = async (req, res) => {
   try {
     const taskId = req.params.taskId;
+    const { redisClient } = req;
 
     // Check if the taskId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
@@ -68,6 +84,10 @@ const deleteUserTask = async (req, res) => {
         .json({ message: "Task not found or not authorized to delete" });
     }
 
+    // Invalidate the cache for the user's tasks to ensure freshness
+    const cacheKey = `userTasks:${req.user.userId}`;
+    await redisClient.del(cacheKey);
+
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -80,6 +100,7 @@ const updateUserTask = async (req, res) => {
   try {
     const taskId = req.params.taskId;
     const { description, completed } = req.body;
+    const { redisClient } = req;
 
     // Validate that the provided ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
@@ -105,6 +126,10 @@ const updateUserTask = async (req, res) => {
         .json({ message: "Task not found or not authorized to update" });
     }
 
+    // Invalidate the cache for the user's tasks to ensure freshness
+    const cacheKey = `userTasks:${req.user.userId}`;
+    await redisClient.del(cacheKey);
+
     res.status(200).json({
       message: "Task updated successfully",
       task,
@@ -115,4 +140,9 @@ const updateUserTask = async (req, res) => {
   }
 };
 
-module.exports = { createTask, getUserTasks, deleteUserTask, updateUserTask };
+module.exports = {
+  createTask,
+  getUserTasks,
+  deleteUserTask,
+  updateUserTask,
+};

@@ -14,6 +14,8 @@ services:
 
   redis:
     image: redis
+    networks:
+      - app-network
 
   nodeapp:
     build: .
