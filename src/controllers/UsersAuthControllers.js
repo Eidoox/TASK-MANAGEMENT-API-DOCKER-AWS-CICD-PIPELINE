@@ -4,6 +4,12 @@ const userModel = require("../models/UserModel");
 const { generateJWT } = require("../utils/GenerateJWT");
 const { updateUserTask } = require("./TasksControllers");
 
+let redisClient;
+
+const setRedisClient = (app) => {
+  redisClient = app.get("redisClient");
+};
+
 // Register a new user
 const usersRegisteration = async (req, res) => {
   try {

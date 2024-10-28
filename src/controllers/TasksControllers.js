@@ -1,5 +1,12 @@
 const { default: mongoose } = require("mongoose");
 const taskModel = require("../models/TaskModel");
+
+let redisClient;
+
+const setRedisClient = (app) => {
+  redisClient = app.get("redisClient");
+};
+
 // create task for authenticated user
 const createTask = async (req, res) => {
   try {
