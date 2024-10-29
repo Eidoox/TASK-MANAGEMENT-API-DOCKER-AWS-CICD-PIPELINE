@@ -21,6 +21,10 @@ app.use(express.json());
       next();
     });
 
+    app.get("/", (req, res) => {
+      res.send("Welcoe to my nodeappppppppp");
+    });
+
     app.use("/api/v1/", indexRouter);
 
     app.listen(5000, () => {
